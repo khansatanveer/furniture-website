@@ -23,7 +23,7 @@ export default async function NewArrivals() {
                 <div key={product._id} className="flex flex-col md:flex-row items-center gap-8">
                     {/* Image on the left */}
                     <div className="md:w-[50%] h-auto flex justify-center">
-                        <Link href={`Products/${product._id}`}>
+                        <Link href={`/Products/${product._id}`}>
                             <Image
                                 src={urlFor(product.image).url()} // Convert ImageUrlBuilder to string URL
                                 alt={product.name}
