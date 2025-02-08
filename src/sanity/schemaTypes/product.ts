@@ -1,66 +1,74 @@
-const productSchema = {
-    name: 'product',
-    title: 'Product',
-    type: 'document',
-    fields: [
-      {
-        name: 'id',
-        title: 'ID',
-        type: 'string',
+import { defineField, defineType } from "sanity";
+
+export default defineType({
+  name: "product",
+  title: "Product",
+  type: "document",
+  fields: [
+    defineField({
+      name: 'id',
+      title: 'ID',
+      type: 'string',
+    }),
+    defineField({
+      name: 'name',
+      title: 'Name',
+      type: 'string',
+      description: "Keep the title relative to product",
+      validation: (rule) => rule.required(),
+    }),
+    defineField({
+      name: "slug",
+      title: "Slug",
+      type: "slug",
+      options: {
+        source: "name",
+        maxLength: 96,
       },
-      {
-        name: 'name',
-        title: 'Name',
-        type: 'string',
-      },
-      {
-        name :"slug",
-        type : "slug",
-        title: "slug",
-        option :{
-          source:"name"}
-      },
-      {
-        name: 'image',
-        title: 'Image',
-        type: 'image',
-      },
-      {
-        name: 'imagePath',
-        title: 'Image Path',
-        type: 'url',
-      },
-      {
-        name: 'price',
-        title: 'Price',
-        type: 'number',
-      },
-      {
-        name: 'description',
-        title: 'Description',
-        type: 'text',
-      },
-      {
-        name: 'discountPercentage',
-        title: 'Discount Percentage',
-        type: 'number',
-      },
-      {
-        name: 'isFeaturedProduct',
-        title: 'Is Featured Product',
-        type: 'boolean',
-      },
-      {
-        name: 'stockLevel',
-        title: 'Stock Level',
-        type: 'number',
-      },
-      {
-        name: 'category',
-        title: 'Category',
-        type: 'string',
-      },
-    ],
-    };
-  
-  export default productSchema;
+      validation: (rule) => rule.required(),
+    }),
+    defineField({
+      name: "description",
+      title: "Description",
+      type: "text",
+    }),
+    defineField({
+      name: "image",
+      title: "Image",
+      type: "image",
+    }),
+    defineField({
+      name: 'imagePath',
+      title: 'Image Path',
+      type: 'url',
+    }),
+    defineField({
+      name: "category",
+      title: "Category",
+      type: "string",
+    }),
+    defineField({
+      name: 'isFeaturedProduct',
+      title: 'Is Featured Product',
+      type: 'boolean',
+    }),
+    defineField({
+      name: 'discountPercentage',
+      title: 'Discount Percentage',
+      type: 'number',
+    }),
+    defineField({
+      name: "price",
+      title: "Price",
+      type: "number",
+    }),
+    defineField({
+      name: 'stockLevel',
+      title: 'Stock Level',
+      type: 'number',
+    }),
+  ],
+});
+
+
+

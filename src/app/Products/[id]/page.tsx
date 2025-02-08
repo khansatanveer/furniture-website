@@ -1,206 +1,156 @@
-import React from "react";
-import Link from "next/link";
+'use client';
+import { client } from "@/sanity/lib/client";
+import { useEffect, useState } from "react";
+import ImageGallery from "@/app/components/ImageGallery"; // Import ImageGallery component
 import Image from "next/image";
-// import { BsFacebook } from "react-icons/bs";
-// import { FaLinkedin, FaTwitter } from "react-icons/fa";
+import { urlFor } from "@/sanity/lib/image";
+import { Star, Tag, Truck } from "lucide-react";
+import { use } from "react"; // Import use from React
 import Header from "@/app/components/header";
 
-function AsgaardSofa() {
-  const images = ["/sofaset.jpeg", "/sofaset2.jpeg", "/hero2.jpeg"];
-  const sizes = ["L","MD", "XL", "XS"];
-  const colors = ["bg-purple-700", "bg-blue-500", "bg-green-400"];
+// Fetch product details based on the ID
+async function products(id: string) {
+  const query = `*[ _type == "product" && _id == $id]{
+    name,
+    "id": _id,
+    price,
+    description,
+    category,
+    discountPercentage,
+    "image": image.asset._ref
+  }[0]`;
+
+  const data = await client.fetch(query, { id });
+
+  return data;
+}
+
+// The main ProductPage component
+export default function ProductPageWrapper({
+  params,
+}: {
+  params: Promise<{ id: string }>; // params is now a Promise
+}) {
+  const { id } = use(params); // Unwrapping params with React.use()
+  
+  return <ProductPageContent id={id} />;
+}
+
+function ProductPageContent({ id }: { id: string }) {
+  const [data, setData] = useState<Product | null>(null);
+  const [selectedImage, setSelectedImage] = useState<string | null>(null);
+
+  useEffect(() => {
+    async function fetchData() {
+      const productData = await products(id);
+      setData(productData);
+      setSelectedImage(productData.image);
+    }
+    fetchData();
+  }, [id]);
+
+  if (!data) {
+    return (
+      <div className="flex items-center justify-center h-screen bg-gray-100">
+        <h1 className="text-2xl font-semibold text-gray-600">Loading...</h1>
+      </div>
+    );
+  }
 
   return (
-    <div className="overflow-x-hidden">
-      {/* Updated Header with better responsiveness */}
-      <Header />
-      <div className="max-w-screen-2xl mx-auto px-4 sm:px-6 lg:px-8 pb-8 ">
-        {/* Navigation */}
-        <nav className="text-gray-700 text-sm sm:text-base flex items-center space-x-2 mt-4">
-          <Link href="/" className="font-bold hover:underline">
-            Home
-          </Link>
-          <span className="font-bold">{">"}</span>
-          <Link href="/shop" className="hover:underline">
-            Shop
-          </Link>
-          <span className="font-bold">{">"}</span>
-          <span>Asgaard Sofa</span>
-        </nav>
+    <div>
+    <div>
+      <div>
+        <Header/>
+      </div>
+      <div className="bg-white ">
+        <div className="mx-auto max-w-screen-xl px-4 md:px-8">
+          <div className="grid gap-8 md:grid-cols-2"> 
 
-        <div className="flex flex-col lg:flex-row gap-8 mt-8">
-          {/* Left Side: Small Images */}
-          <div className="flex flex-row lg:flex-col gap-4 w-full lg:w-[200px] md:w-[200px]">
-            {images.map((img, idx) => (
-              <Image
-                key={idx}
-                src={img}
-                alt={`Sofa Image ${idx + 1}`}
-                height={120}
-                width={120}
-                className="rounded-lg object-cover cursor-pointer hover:scale-105 transition-transform bg-yellow-100 lg:w-[200px] lg:h-[180px]"
+            {/* Image Gallery */}
+            <div className="grid gap-4 lg:grid-cols-5 mt-5">
+              <ImageGallery
+                images={[data.image, data.image, data.image]} 
+                selectedImage={selectedImage}
+                onSelectImage={(img) => setSelectedImage(img)} 
               />
-            ))}
-          </div>
+              <div className="relative overflow-hidden rounded-lg bg-gray-100 lg:col-span-4">
+                <Image
+                  src={selectedImage ? urlFor(selectedImage).url() : ''}
+                  alt={data.name}
+                  width={200}
+                  height={200}
+                  className="h-[570px] w-full object-cover object-center"
+                />
 
-          {/* Center: Big Image */}
-          <div className="flex-1">
-            <Image
-              src="/hero7.jpeg"
-              alt="Main Sofa Image"
-              height={500}
-              width={500}
-              className="w-full h-[300px] sm:h-[400px] lg:h-[550px] rounded-lg object-cover"
-            />
-          </div>
-
-          {/* Right Side: Product Details */}
-          <div className="flex-1 space-y-4">
-            <h3 className="text-xl sm:text-2xl font-medium">Asgaard Sofa</h3>
-            <p className="text-lg sm:text-xl text-gray-500">Rs: 250,000.00</p>
-            <div className="flex items-center space-x-2 mt-2">
-              <span className="text-yellow-500">⭐⭐⭐⭐⭐</span>
-              <span className="text-gray-700 text-sm sm:text-base">(5 Customer Reviews)</span>
-            </div>
-            <p className="mt-4 text-gray-700 text-sm sm:text-base">
-              Lorem ipsum dolor sit amet consectetur adipisicing elit. Libero,
-              ea excepturi. Minima adipisci, ratione, aspernatur culpa cum dolor
-              eos optio maiores eius, reiciendis earum aut laborum delectus
-              exercitationem velit alias.
-            </p>
-
-            {/* Size Options */}
-            <div className="mt-4">
-              <h4 className="font-semibold">Size</h4>
-              <div className="flex gap-4 mt-2">
-                {sizes.map((size) => (
-                  <button
-                    key={size}
-                    className="border rounded-md px-6 py-2 text-sm sm:text-base hover:bg-gray-200"
-                  >
-                    {size}
-                  </button>
-                ))}
-              </div>
-            </div>
-
-            {/* Color Options */}
-            <div className="mt-4">
-              <h4 className="font-semibold">Color</h4>
-              <div className="flex gap-2 mt-2">
-                {colors.map((color, idx) => (
-                  <div
-                    key={idx}
-                    className={`rounded-full h-5 w-5 ${color}`}
-                  ></div>
-                ))}
-              </div>
-            </div>
-
-            {/* Quantity and Add to Cart */}
-            <div className="flex items-center gap-4 mt-6 flex-wrap">
-              <div className="flex items-center border p-2 gap-4">
-                <button aria-label="Decrease quantity">-</button>
-                <span>1</span>
-                <button aria-label="Increase quantity">+</button>
-              </div>
-              <button className="bg-primary text-white px-6 py-2 rounded hover:bg-opacity-90">
-                Add To Cart
-              </button>
-            </div>
-
-            <hr className="my-6" />
-
-            {/* Additional Information */}
-            <div className="space-y-4">
-              <div className="flex justify-between">
-                <span>SKU:</span>
-                <span>SS001</span>
-              </div>
-              <div className="flex justify-between">
-                <span>Category:</span>
-                <span>Sofas</span>
-              </div>
-              <div className="flex justify-between">
-                <span>Tags:</span>
-                <span>Sofa, Chair, Home, Shop</span>
-              </div>
-              <div className="flex justify-between items-center mt-4">
-                <span>Share:</span>
-                <div className="flex space-x-2">
-                  {/* <BsFacebook className="cursor-pointer" size={25} />
-                  <FaLinkedin className="cursor-pointer" size={25} />
-                  <FaTwitter className="cursor-pointer" size={25} /> */}
+                {/* Discount Badge + Tag Icon in Column */}
+                <div className="absolute left-0 top-0 flex flex-row items-start">
+                  <span className="rounded-br-lg bg-red-500 px-4 py-2 text-base uppercase tracking-wider text-white">
+                    %{data.discountPercentage}
+                  </span>
+                  <Tag className="h-8 w-8 text-gray-900 mt-8" />
                 </div>
               </div>
             </div>
-          </div>
-        </div>
 
-        <hr className="mt-8" />
+            <div className="md:py-8 mt-8">
+              <div className="mb-2 md:mb-3">
+                <span className="mb-0.5 inline-block text-2xl text-gray-500 font-serif">
+                  {data.category}
+                </span>
+                <h2 className="text-4xl md:text-5xl font-bold text-gray-800 ">
+                  {data.name}
+                </h2>
+              </div>
 
-        {/* Description Section */}
-        <div>
-          <h3 className="text-xl sm:text-2xl font-medium my-10 flex justify-center space-x-8">
-            <span>Description</span>
-            <span className="text-gray-400">Additional Information</span>
-            <span className="text-gray-400">Reviews [5]</span>
-          </h3>
-          <p className="text-sm sm:text-base leading-6">
-            Lorem ipsum dolor, sit amet consectetur adipisicing elit. Doloribus
-            blanditiis sed laudantium neque saepe, laboriosam quasi at sit ipsa
-            adipisci deleniti amet. Reiciendis fuga quia sed eum cum nisi
-            voluptatem? Amet sequi culpa dolor veniam adipisci laborum
-            assumenda repellendus quasi?
-          </p>
-        </div>
+              <div className="mb-6 flex items-center gap-3 md:mb-10">
+                <button className='rounded-full gap-x-2 py-2 px-4 bg-red-200 '>
+                  <span className="text-base flex flex-row gap-2 ">
+                    4.2 
+                    <Star className="h-5 w-5 bg"/>
+                  </span>
+                </button>
+                <span className="text-base text-gray-500">
+                  56 Ratings
+                </span>
+              </div>
 
-        {/* Related Products */}
-        <h2 className="text-2xl sm:text-3xl font-medium mt-8">
-          Related Products
-        </h2>
-        <div className="flex flex-wrap justify-center md:justify-start gap-6 mt-6">
-          {[
-            {
-              src: "/hero3.jpeg",
-              name: "Trenton modular sofa_3",
-              price: "Rs. 25,000.00",
-            },
-            {
-              src: "/hero4.jpeg",
-              name: "Granite dining table with dining chair",
-              price: "Rs. 25,000.00",
-            },
-            {
-              src: "/hero5.jpeg",
-              name: "Outdoor bar table and stool",
-              price: "Rs. 25,000.00",
-            },
-            {
-              src: "/hero6.jpeg",
-              name: "Plain console with teak",
-              price: "Rs. 25,000.00",
-            },
-          ].map((item, index) => (
-            <div
-              key={index}
-              className="flex flex-col text-left h-[250px] w-[150px] sm:h-[300px] sm:w-[300px]"
-            >
-              <Image
-                src={item.src}
-                alt={item.name}
-                height={300}
-                width={300}
-                className="rounded-lg object-cover"
-              />
-              <p className="text-sm font-medium">{item.name}</p>
-              <h3 className="text-base font-semibold">{item.price}</h3>
+              <div className="mb-4">
+                <div className="flex items-end gap-2 ">
+                  <span className="text-2xl font-bold text-gray-800 md:text-3xl font-serif">
+                    ${data.price}
+                  </span>
+                  <span className="mb-0.5 text-red-500 line-through text-xl">
+                    ${data.price % 7}
+                  </span>
+                </div>
+                <span className="text-base text-gray-500">
+                  Incl. Vat plus shipping 
+                </span>
+              </div>
+
+              <div className="mb-6 flex items-center gap-2 text-gray-500">
+                <Truck className="w-6 h-6 "/>
+                <span className="text-base">4-6 Day Shipping</span>
+              </div>
+
+              <p className="mt-8 mb-8 text-2xl text-gray-900 tracking-wide font-semibold font-serif">{data.description}</p>
+
+              <div className="flex gap-2.5 font-serif">
+                <button
+                  className="px-5 py-3 text-lg font-semibold text-black bg-gray-300 rounded-lg shadow-lg hover:bg-gray-400 focus:ring-4 focus:ring-gray-200 focus:outline-none">
+                  AddToCart
+                </button> 
+                <button
+                  className="px-5 py-3 text-lg font-semibold text-black bg-gray-300 rounded-lg shadow-lg hover:bg-gray-400 focus:ring-4 focus:ring-gray-200 focus:outline-none">
+                  CheckOut Now
+                </button> 
+              </div>
             </div>
-          ))}
+          </div>
         </div>
       </div>
     </div>
+</div>
   );
 }
-
-export default AsgaardSofa;

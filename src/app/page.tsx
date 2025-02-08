@@ -1,8 +1,10 @@
-import Header from "./components/header";
-export default function Home() {
+import Home from "./Home/page"
+// import Pamentgetway from '../app/PaymentGetway/page'
+export default function page() {
   return (
    <div>
-    <Header/>
+    {/* <Pamentgetway/> */}
+    <Home/>
     </div>
   );
 }
