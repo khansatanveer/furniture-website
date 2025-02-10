@@ -1,13 +1,13 @@
+import { clerkMiddleware, createRouteMatcher } from '@clerk/nextjs/server'
 
-import { clerkMiddleware, createRouteMatcher } from '@clerk/nextjs/server';
+const isProtectedRoute = createRouteMatcher(['/payment', '/form'])
 
-const isProtectedRoute = createRouteMatcher(['/payment', '/form']);
-
-export default clerkMiddleware((auth, req) => {
-  if (isProtectedRoute(req)) {
-    return auth().then((authObject) => authObject.protect()); // Handle the Promise correctly
+export default clerkMiddleware(async (auth,req) =>{
+  if(isProtectedRoute(req)){
+    await auth.protect()
   }
-});
+})
+
 export const config = {
   matcher: [
     // Skip Next.js internals and all static files, unless found in search params
@@ -15,6 +15,4 @@ export const config = {
     // Always run for API routes
     '/(api|trpc)(.*)',
   ],
-};
-
-
+}
